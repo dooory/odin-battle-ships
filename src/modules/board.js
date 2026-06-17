@@ -37,7 +37,7 @@ function isValidPosition(position) {
 
 export default function board() {
     const board = createBoard();
-    const attackHistory = [];
+    const attackHistory = new Set();
     const ships = [];
 
     function createBoard() {
@@ -116,7 +116,11 @@ export default function board() {
     function receiveAttack(position) {
         const cell = getCell(position);
 
-        attackHistory.push(cell);
+        if (attackHistory.has(cell)) {
+            throw new Error("You can't attack one cell multiple times");
+        }
+
+        attackHistory.add(cell);
 
         if (cell.ship) {
             cell.ship.hit();
