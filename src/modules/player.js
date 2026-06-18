@@ -11,8 +11,13 @@ export default function Player(name) {
         return name;
     }
 
+    function setName(newName) {
+        name = newName;
+    }
+
     return {
         getBoard,
         getName,
+        setName,
     };
 }

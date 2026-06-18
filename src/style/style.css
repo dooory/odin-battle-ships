@@ -10,6 +10,7 @@
 #game {
     display: flex;
     gap: 2rem;
+    justify-content: center;
 }
 
 .board-cell {
@@ -39,6 +40,14 @@
     background: var(--ship-c);
 }
 
+.board-cell.has-ghost-ship {
+    background-color: var(--hit-c);
+}
+
+.board-cell.invalid-ghost-ship {
+    background-color: var(--sunk-ship-c);
+}
+
 .player-section.active {
     .player-board {
         outline: 4px solid green;
@@ -46,5 +55,32 @@
 
     .board-cell {
         cursor: pointer;
+    }
+}
+
+.placement-container {
+    display: flex;
+    flex-direction: column;
+
+    align-items: flex-start;
+
+    .header {
+        display: flex;
+        align-items: center;
+
+        gap: 1rem;
+    }
+
+    .placement-ship {
+        .ship-segment {
+            width: var(--cell-size);
+            height: var(--cell-size);
+
+            background-color: var(--ship-c);
+        }
+
+        &:not(:last-of-type) {
+            margin-bottom: 1rem;
+        }
     }
 }

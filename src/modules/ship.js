@@ -15,8 +15,13 @@ export default function Ship(length) {
         return hitCount === length;
     }
 
+    function getLength() {
+        return length;
+    }
+
     return {
         hit,
         hasSunk,
+        getLength,
     };
 }

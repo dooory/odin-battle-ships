@@ -1,3 +1,4 @@
+import Game from "./game.js";
 import Ship from "./ship.js";
 
 const boardSize = 10;
@@ -35,25 +36,15 @@ function getMagnitude(from, to) {
     }
 }
 
-function isValidPosition(position) {
-    if (
-        position[0] > 9 ||
-        position[1] > 9 ||
-        position[0] < 0 ||
-        position[1] < 0
-    ) {
-        return false;
-    }
-
-    return true;
-}
-
 export default function board() {
-    const board = createBoard();
-    const attackHistory = new Set();
-    const ships = [];
+    let attackHistory;
+    let ships;
+    let board = createBoard();
 
     function createBoard() {
+        attackHistory = new Set();
+        ships = [];
+
         return new Array(boardSize * boardSize).fill(null).map((_, index) => {
             const pos = indexToCellPos(index);
 
@@ -62,6 +53,19 @@ export default function board() {
                 ship: null,
             };
         });
+    }
+
+    function isValidPosition(position) {
+        if (
+            position[0] > 9 ||
+            position[1] > 9 ||
+            position[0] < 0 ||
+            position[1] < 0
+        ) {
+            return false;
+        }
+
+        return true;
     }
 
     function placeShip(from, to) {
@@ -79,6 +83,28 @@ export default function board() {
         range.forEach((cell) => {
             cell.ship = ship;
         });
+    }
+
+    function placeShipInDirection(from, direction, length) {
+        let endPos = [0, 0];
+
+        if (direction === "up") {
+            endPos = [from[0], from[1] + length];
+        } else if (direction === "down") {
+            endPos = [from[0], from[1] - length];
+        } else if (direction === "left") {
+            endPos = [from[0] - length, from[1]];
+        } else if (direction === "right") {
+            endPos = [from[0] + length, from[1]];
+        }
+
+        placeShip(from, endPos);
+    }
+
+    function clearBoard() {
+        board = createBoard();
+
+        return board;
     }
 
     function getBoard() {
@@ -124,6 +150,28 @@ export default function board() {
         return attackHistory;
     }
 
+    function getShips() {
+        return ships;
+    }
+
+    function getAvailableShips() {
+        const placedShips = getShips();
+        const startingShips = Game.getSettings().startingShips;
+
+        const availableShips = startingShips.filter((startingShipLength) => {
+            return (
+                placedShips.length === 0 ||
+                !placedShips.some((ship) => {
+                    const shipLength = ship.getLength();
+
+                    return shipLength === startingShipLength;
+                })
+            );
+        });
+
+        return availableShips;
+    }
+
     function receiveAttack(position) {
         const cell = getCell(position);
 
@@ -144,11 +192,17 @@ export default function board() {
 
     return {
         placeShip,
+        placeShipInDirection,
         receiveAttack,
+        clearBoard,
+        hasAllShipsSunk,
+        isValidPosition,
 
         getBoard,
         getCell,
+        getCellRange,
         getAttackHistory,
-        hasAllShipsSunk,
+        getShips,
+        getAvailableShips,
     };
 }

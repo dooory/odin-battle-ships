@@ -1,24 +1,45 @@
 import Dom from "./dom.js";
 import Player from "./player.js";
 
+const settings = {
+    ai: true,
+    startingShips: [5, 4, 3, 2],
+};
+
 function Game() {
-    const players = [];
-    const aiEnabled = true;
+    const players = [Player("Player 1"), Player("Player 2")];
+
     let status = "intermission";
     let roundNumber;
+    let whosPlacing;
 
     function start(player1Name, player2Name) {
+        if (status !== "intermission") {
+            throw new Error("Game must be in intermission to start");
+        }
+
+        players[0].setName(player1Name);
+        players[1].setName(player2Name);
+
         setStatus("placing");
 
-        players[0] = Player(player1Name);
-        players[1] = Player(player2Name);
-
         roundNumber = 0;
+        whosPlacing = 0;
 
-        Dom.renderGame();
+        const [board1, board2] = getPlayerBoards();
+
+        if (settings.ai) {
+            whosPlacing = 0;
+
+            Dom.renderPlacementShips(0, board1.getAvailableShips());
+        }
     }
 
     function end(winner) {
+        if (status !== "playing") {
+            throw new Error("Game must be ongoing to end");
+        }
+
         const boards = getPlayerBoards();
         console.log(winner.getName());
         setStatus("intermission");
@@ -26,7 +47,7 @@ function Game() {
         Dom.renderGame(boards);
     }
 
-    function placeShips() {
+    function placedShips() {
         setStatus("playing");
 
         nextRound();
@@ -52,7 +73,7 @@ function Game() {
 
         roundNumber += 1;
 
-        if (aiEnabled && roundNumber % 2 === 0) {
+        if (aiEnabled && getWhosPlaying() === 0) {
             const playerBoard = boards[0].getBoard();
             const attackHistory = boards[0].getAttackHistory();
 
@@ -72,6 +93,10 @@ function Game() {
             nextRound();
             Dom.renderGame();
         }
+    }
+
+    function getSettings() {
+        return settings;
     }
 
     function getPlayer(id) {
@@ -102,8 +127,24 @@ function Game() {
         return players.map((plr) => plr.getBoard());
     }
 
+    function getPlayerBoard(id) {
+        return getPlayer(id).getBoard();
+    }
+
     function getRound() {
         return roundNumber;
+    }
+
+    function getStatus() {
+        return status;
+    }
+
+    function getWhosPlacing() {
+        return whosPlacing;
+    }
+
+    function getWhosPlaying() {
+        return roundNumber % 2;
     }
 
     function setStatus(newStatus) {
@@ -113,28 +154,21 @@ function Game() {
 
         status = newStatus;
     }
-
-    function getStatus() {
-        return status;
-    }
-
-    function isAiEnabled() {
-        return aiEnabled;
-    }
-
     return {
         start,
-        placeShips,
+        placedShips,
         end,
         nextRound,
 
         getPlayer,
         getPlayers,
         getPlayerBoards,
+        getPlayerBoard,
         getStatus,
         getRound,
-
-        isAiEnabled,
+        getSettings,
+        getWhosPlacing,
+        getWhosPlaying,
     };
 }
 

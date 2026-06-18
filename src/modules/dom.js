@@ -1,9 +1,14 @@
-import game from "./game.js";
 import Game from "./game.js";
 
 const boardTemplate = document.getElementById("boardTemplate");
 
+const rotateOrder = ["right", "down", "left", "up"];
+
 function Dom() {
+    let whosDragging;
+    let draggingShipLength;
+    const placementDirections = ["right", "right"];
+
     function clearBoard(board) {
         board.textContent = "";
     }
@@ -17,12 +22,10 @@ function Dom() {
         const player1Board = section1.querySelector(".player-board");
         const player2Board = section2.querySelector(".player-board");
 
-        const roundNumber = Game.getRound();
-
-        if (game.getStatus() === "intermission") {
+        if (Game.getStatus() !== "playing") {
             section1.classList.remove("active");
             section2.classList.remove("active");
-        } else if (roundNumber % 2 === 0) {
+        } else if (Game.getWhosPlaying() === 0) {
             section1.classList.add("active");
             section2.classList.remove("active");
         } else {
@@ -48,13 +51,13 @@ function Dom() {
         for (let rowIndex = 9; rowIndex >= 0; rowIndex--) {
             const row = document.createElement("tr");
             row.classList.add("board-row");
-            row.dataset.index = rowIndex;
 
             for (let colIndex = 0; colIndex < 10; colIndex++) {
                 const cellContents = board.getCell([colIndex, rowIndex]);
                 const cell = document.createElement("td");
                 cell.classList.add("board-cell");
-                cell.dataset.index = colIndex;
+                cell.dataset.x = colIndex;
+                cell.dataset.y = rowIndex;
 
                 if (cellContents.ship?.hasSunk()) {
                     cell.classList.add("sunk-ship");
@@ -74,19 +77,52 @@ function Dom() {
             boardEl.append(row);
         }
 
-        boardEl.addEventListener("click", handleBoardClick);
-
         return boardEl;
     }
 
+    function createPlacementShip(length) {
+        const shipEl = document.createElement("table");
+        shipEl.classList.add("placement-ship");
+        shipEl.draggable = true;
+        shipEl.dataset.length = length;
+
+        for (let i = 0; i < length; i++) {
+            const cell = document.createElement("td");
+
+            shipEl.append(cell);
+
+            cell.classList.add("ship-segment");
+        }
+
+        return shipEl;
+    }
+
+    function renderPlacementShips(playerId, unplacedShips) {
+        const playerSection = document.querySelector(
+            `.player-section[data-index="${playerId}"]`,
+        );
+
+        const availableShips = playerSection.querySelector(".available-ships");
+
+        availableShips.textContent = "";
+
+        unplacedShips.forEach((shipSize) => {
+            const placementShip = createPlacementShip(shipSize);
+
+            availableShips.append(placementShip);
+        });
+
+        renderGame();
+    }
+
     function handleBoardClick(event) {
-        if (Game.getStatus() === "intermission") {
+        if (Game.getStatus() !== "playing") {
             return;
         }
 
         const sectionEl = event.currentTarget.parentNode?.parentNode;
 
-        if (Game.isAiEnabled() === true && sectionEl.dataset.index === 0)
+        if (Game.getSettings().ai === true && sectionEl.dataset.index === 0)
             return;
 
         if (!sectionEl?.classList.contains("active")) return;
@@ -94,11 +130,7 @@ function Dom() {
         if (!event.target.classList.contains("board-cell")) return;
 
         const cell = event.target;
-        const row = cell.parentNode;
-        const position = [
-            Number(cell.dataset.index),
-            Number(row.dataset.index),
-        ];
+        const position = [Number(cell.dataset.x), Number(cell.dataset.y)];
 
         const currentPlayer = Game.getPlayer(Number(sectionEl.dataset.index));
         const board = currentPlayer.getBoard();
@@ -117,8 +149,234 @@ function Dom() {
         renderGame();
     }
 
+    function handlePlacementReset(playerId) {
+        const board = Game.getPlayerBoard(playerId);
+
+        if (board.getShips().length === 0) return;
+
+        board.clearBoard();
+
+        renderPlacementShips(0, board.getAvailableShips());
+    }
+
+    function handleRotatePlacement(playerId, directionText) {
+        const orderIndex = rotateOrder.indexOf(placementDirections[playerId]);
+
+        if (orderIndex === rotateOrder.length - 1) {
+            placementDirections[playerId] = rotateOrder[0];
+        } else {
+            placementDirections[playerId] = rotateOrder[orderIndex + 1];
+        }
+
+        const direction = placementDirections[playerId];
+
+        directionText.textContent = `${direction.charAt(0).toUpperCase()}${direction.slice(1)}`;
+    }
+
+    function handlePlacementDrop(playerId, targetCell) {
+        const board = Game.getPlayerBoard(playerId);
+
+        const fromPos = [
+            Number(targetCell.dataset.x),
+            Number(targetCell.dataset.y),
+        ];
+
+        let endPos = [];
+
+        if (placementDirections[playerId] === "up") {
+            endPos = [fromPos[0], fromPos[1] + (draggingShipLength - 1)];
+        } else if (placementDirections[playerId] === "down") {
+            endPos = [fromPos[0], fromPos[1] - (draggingShipLength - 1)];
+        } else if (placementDirections[playerId] === "left") {
+            endPos = [fromPos[0] - (draggingShipLength - 1), fromPos[1]];
+        } else if (placementDirections[playerId] === "right") {
+            endPos = [fromPos[0] + (draggingShipLength - 1), fromPos[1]];
+        }
+
+        // Warn user about invalid position
+        if (!board.isValidPosition(endPos) || !board.isValidPosition(fromPos))
+            return;
+
+        const range = board.getCellRange(fromPos, endPos)[0];
+
+        if (range.some((cell) => cell.ship !== null)) return;
+
+        board.placeShip(fromPos, endPos);
+        renderPlacementShips(playerId, board.getAvailableShips());
+    }
+
+    function handlePlacementDragEnter(playerId, target) {
+        const boardDiv = target.parentNode.parentNode;
+        const ghostShips = boardDiv.querySelectorAll(".has-ghost-ship");
+
+        ghostShips.forEach((cell) => {
+            cell.classList.remove("has-ghost-ship");
+            cell.classList.remove("invalid-ghost-ship");
+        });
+
+        let lastChild = target;
+        const shipCells = [];
+        let isInvalidPosition = false;
+
+        for (let i = 0; i < draggingShipLength; i++) {
+            if (!lastChild) {
+                isInvalidPosition = true;
+
+                break;
+            }
+
+            if (lastChild.classList.contains("has-ship")) {
+                isInvalidPosition = true;
+            }
+
+            lastChild.classList.add("has-ghost-ship");
+
+            shipCells.push(lastChild);
+
+            if (placementDirections[playerId] === "right") {
+                lastChild = lastChild.nextElementSibling;
+            } else if (placementDirections[playerId] === "left") {
+                lastChild = lastChild.previousElementSibling;
+            } else if (placementDirections[playerId] === "up") {
+                lastChild = boardDiv.querySelector(
+                    `.board-cell[data-x="${lastChild.dataset.x}"][data-y="${Number(lastChild.dataset.y) + 1}"]`,
+                );
+            } else if (placementDirections[playerId] === "down") {
+                lastChild = boardDiv.querySelector(
+                    `.board-cell[data-x="${lastChild.dataset.x}"][data-y="${Number(lastChild.dataset.y) - 1}"]`,
+                );
+            }
+        }
+
+        if (isInvalidPosition) {
+            shipCells.forEach((cell) => {
+                cell.classList.add("invalid-ghost-ship");
+            });
+        }
+    }
+
+    function setupShipPlacement(section, playerId) {
+        function isPlacing() {
+            return (
+                Game.getStatus() === "placing" &&
+                Game.getWhosPlacing() === playerId
+            );
+        }
+
+        const boardDiv = section.querySelector(".player-board");
+
+        const availableShipsDiv = section.querySelector(".available-ships");
+
+        const rotateButton = section.querySelector(".rotate-ship");
+        const directionText = section.querySelector(".current-direction");
+        const direction = placementDirections[playerId];
+
+        const placementResetButton = section.querySelector(".reset-ships");
+
+        let targetCell;
+
+        placementResetButton.addEventListener("click", () => {
+            if (Game.getStatus() !== "placing") return;
+
+            if (Game.getWhosPlacing() !== playerId) return;
+
+            handlePlacementReset(playerId);
+        });
+
+        directionText.textContent = `${direction.charAt(0).toUpperCase()}${direction.slice(1)}`;
+
+        rotateButton.addEventListener("click", () => {
+            if (!isPlacing()) return;
+
+            handleRotatePlacement(playerId, directionText);
+        });
+
+        availableShipsDiv.addEventListener("dragstart", (event) => {
+            if (!isPlacing()) return;
+
+            const target = event.target;
+
+            if (!target.classList.contains("placement-ship")) return;
+
+            whosDragging = playerId;
+            draggingShipLength = Number(target.dataset.length);
+        });
+
+        availableShipsDiv.addEventListener("dragend", () => {
+            if (!isPlacing()) return;
+
+            const ghostShips = section.querySelectorAll(".has-ghost-ship");
+
+            ghostShips.forEach((cell) => {
+                cell.classList.remove("has-ghost-ship");
+                cell.classList.remove("invalid-ghost-ship");
+            });
+
+            whosDragging = null;
+            draggingShipLength = null;
+        });
+
+        boardDiv.addEventListener("dragover", (event) => {
+            event.preventDefault();
+        });
+
+        boardDiv.addEventListener("dragenter", (event) => {
+            event.preventDefault();
+
+            if (!event.target.classList.contains("board-cell")) return;
+
+            if (!isPlacing()) return;
+
+            handlePlacementDragEnter(playerId, event.target);
+
+            targetCell = event.target;
+        });
+
+        boardDiv.addEventListener("drop", () => {
+            if (!targetCell) return;
+
+            if (!isPlacing()) return;
+
+            if (whosDragging !== playerId) return;
+
+            handlePlacementDrop(playerId, targetCell);
+        });
+    }
+
+    function setupShipAttacking(section, playerId) {
+        function isPlaying() {
+            return (
+                Game.getStatus() === "playing" &&
+                Game.getWhosPlaying() === playerId
+            );
+        }
+
+        const boardDiv = section.querySelector(".player-board");
+
+        boardDiv.addEventListener("click", () => {
+            if (!isPlaying()) return;
+
+            handleBoardClick(playerId);
+        });
+    }
+
+    function setupSection(section) {
+        const playerId = Number(section.dataset.index);
+
+        setupShipPlacement(section, playerId);
+        setupShipAttacking(section, playerId);
+    }
+
+    function setupAllSections() {
+        const sections = document.querySelectorAll(".player-section");
+
+        sections.forEach(setupSection);
+    }
+
     return {
         renderGame,
+        renderPlacementShips,
+        setupAllSections,
     };
 }
 
