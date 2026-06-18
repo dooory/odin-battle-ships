@@ -53,16 +53,13 @@ function Game() {
         roundNumber += 1;
 
         if (aiEnabled && roundNumber % 2 === 0) {
-            console.log("hello");
             const playerBoard = boards[0].getBoard();
             const attackHistory = boards[0].getAttackHistory();
 
-            const legalMoves = playerBoard.reduce((acc, item) => {
-                const filteredCells = item.filter(
-                    (cell) => !attackHistory.has(cell),
-                );
-
-                acc.push(...filteredCells);
+            const legalMoves = playerBoard.reduce((acc, cell) => {
+                if (!attackHistory.has(cell)) {
+                    acc.push(cell);
+                }
 
                 return acc;
             }, []);

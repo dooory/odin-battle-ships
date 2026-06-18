@@ -1,5 +1,18 @@
 import Ship from "./ship.js";
 
+const boardSize = 10;
+
+function cellPosToIndex(pos) {
+    return pos[1] * boardSize + pos[0];
+}
+
+function indexToCellPos(index) {
+    const x = index % boardSize;
+    const y = Math.floor(index / boardSize);
+
+    return [x, y];
+}
+
 function getDirection(from, to) {
     if (to[0] !== from[0] && to[1] !== from[1]) {
         return "diagonal";
@@ -41,14 +54,14 @@ export default function board() {
     const ships = [];
 
     function createBoard() {
-        return new Array(10).fill(null).map((_, rowIndex) =>
-            new Array(10).fill(null).map((_, colIndex) => {
-                return {
-                    position: [colIndex, rowIndex],
-                    ship: null,
-                };
-            }),
-        );
+        return new Array(boardSize * boardSize).fill(null).map((_, index) => {
+            const pos = indexToCellPos(index);
+
+            return {
+                position: pos,
+                ship: null,
+            };
+        });
     }
 
     function placeShip(from, to) {
@@ -77,9 +90,7 @@ export default function board() {
             throw new RangeError("Position's must range from 0-9");
         }
 
-        const [x, y] = position;
-
-        return board[y][x];
+        return board[cellPosToIndex(position)];
     }
 
     function getCellRange(from, to) {
