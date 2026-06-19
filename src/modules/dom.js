@@ -2,7 +2,7 @@ import Game from "./game.js";
 
 const boardTemplate = document.getElementById("boardTemplate");
 
-const rotateOrder = ["right", "down", "left", "up"];
+const rotateOrder = ["right", "up"];
 
 function Dom() {
     let whosDragging;
@@ -151,11 +151,8 @@ function Dom() {
     function handleRotatePlacement(playerId, directionText) {
         const orderIndex = rotateOrder.indexOf(placementDirections[playerId]);
 
-        if (orderIndex === rotateOrder.length - 1) {
-            placementDirections[playerId] = rotateOrder[0];
-        } else {
-            placementDirections[playerId] = rotateOrder[orderIndex + 1];
-        }
+        placementDirections[playerId] =
+            rotateOrder[(orderIndex + 1) % rotateOrder.length];
 
         const direction = placementDirections[playerId];
 

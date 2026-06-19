@@ -2,8 +2,8 @@ import Dom from "./dom.js";
 import Player from "./player.js";
 
 const settings = {
-    ai: true,
-    startingShips: [2, 3, 4, 5, 6],
+    ai: false,
+    startingShips: [2],
 };
 
 function Game() {
@@ -28,9 +28,8 @@ function Game() {
 
         const [board1, board2] = getPlayerBoards();
 
-        whosPlacing = 0;
-
         Dom.renderPlacementShips(0, board1.getAvailableShips());
+        Dom.renderPlacementShips(1, board2.getAvailableShips());
     }
 
     function end(winnerId) {
@@ -47,6 +46,15 @@ function Game() {
     }
 
     function placedShips() {
+        if (
+            getPlayerBoard(whosPlacing).getShips().length <
+            settings.startingShips.length
+        ) {
+            throw new Error(
+                `Player <${whosPlacing}> hasn't placed all of their ships!`,
+            );
+        }
+
         whosPlacing += 1;
 
         if (getSettings().ai) {
@@ -58,7 +66,7 @@ function Game() {
         }
 
         // If all players have placed their ships, start.
-        if (whosPlacing >= players.length - 1) {
+        if (whosPlacing === players.length) {
             setStatus("playing");
 
             nextRound();
