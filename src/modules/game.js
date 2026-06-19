@@ -3,7 +3,7 @@ import Player from "./player.js";
 
 const settings = {
     ai: true,
-    startingShips: [5, 4, 3, 2],
+    startingShips: [2, 3, 4, 5, 6],
 };
 
 function Game() {
@@ -28,30 +28,44 @@ function Game() {
 
         const [board1, board2] = getPlayerBoards();
 
-        if (settings.ai) {
-            whosPlacing = 0;
+        whosPlacing = 0;
 
-            Dom.renderPlacementShips(0, board1.getAvailableShips());
-        }
+        Dom.renderPlacementShips(0, board1.getAvailableShips());
     }
 
-    function end(winner) {
+    function end(winnerId) {
         if (status !== "playing") {
             throw new Error("Game must be ongoing to end");
         }
 
         const boards = getPlayerBoards();
-        console.log(winner.getName());
         setStatus("intermission");
+
+        console.log(`Player ${winnerId} won!`);
 
         Dom.renderGame(boards);
     }
 
     function placedShips() {
-        setStatus("playing");
+        whosPlacing += 1;
 
-        nextRound();
-        Dom.renderGame();
+        if (getSettings().ai) {
+            const aiBoard = getPlayerBoard(1);
+
+            settings.startingShips.forEach((length, index) => {
+                aiBoard.placeShip([index, 0], [index, length - 1]);
+            });
+        }
+
+        // If all players have placed their ships, start.
+        if (whosPlacing >= players.length - 1) {
+            setStatus("playing");
+
+            nextRound();
+            Dom.renderGame();
+
+            return;
+        }
     }
 
     function nextRound() {
@@ -61,23 +75,28 @@ function Game() {
 
         const boards = getPlayerBoards();
 
-        if (boards[0].hasAllShipsSunk()) {
-            end(players[1]);
+        const winnerId = boards.findIndex((board, index) => {
+            const nextIndex = (index + 1) % 2;
 
-            return;
-        } else if (boards[1].hasAllShipsSunk()) {
-            end(players[0]);
+            return (
+                !board.hasAllShipsSunk() && boards[nextIndex].hasAllShipsSunk()
+            );
+        });
+
+        if (winnerId !== -1) {
+            end(winnerId);
 
             return;
         }
 
         roundNumber += 1;
 
-        if (aiEnabled && getWhosPlaying() === 0) {
-            const playerBoard = boards[0].getBoard();
-            const attackHistory = boards[0].getAttackHistory();
+        if (getSettings().ai && getWhosPlaying() === 0) {
+            const playerBoard = boards[0];
+            const boardArray = boards[0].getBoard();
+            const attackHistory = playerBoard.getAttackHistory();
 
-            const legalMoves = playerBoard.reduce((acc, cell) => {
+            const legalMoves = boardArray.reduce((acc, cell) => {
                 if (!attackHistory.has(cell)) {
                     acc.push(cell);
                 }
@@ -88,10 +107,10 @@ function Game() {
             const randomIndex = Math.floor(legalMoves.length * Math.random());
             const aiMove = legalMoves[randomIndex].position;
 
-            boards[0].receiveAttack(aiMove);
+            playerBoard.receiveAttack(aiMove);
 
-            nextRound();
             Dom.renderGame();
+            nextRound();
         }
     }
 
@@ -154,6 +173,7 @@ function Game() {
 
         status = newStatus;
     }
+
     return {
         start,
         placedShips,

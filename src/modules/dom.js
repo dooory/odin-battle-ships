@@ -115,25 +115,14 @@ function Dom() {
         renderGame();
     }
 
-    function handleBoardClick(event) {
-        if (Game.getStatus() !== "playing") {
-            return;
-        }
+    function handleBoardClick(playerId, event) {
+        const attackCell = event.target;
+        const position = [
+            Number(attackCell.dataset.x),
+            Number(attackCell.dataset.y),
+        ];
 
-        const sectionEl = event.currentTarget.parentNode?.parentNode;
-
-        if (Game.getSettings().ai === true && sectionEl.dataset.index === 0)
-            return;
-
-        if (!sectionEl?.classList.contains("active")) return;
-
-        if (!event.target.classList.contains("board-cell")) return;
-
-        const cell = event.target;
-        const position = [Number(cell.dataset.x), Number(cell.dataset.y)];
-
-        const currentPlayer = Game.getPlayer(Number(sectionEl.dataset.index));
-        const board = currentPlayer.getBoard();
+        const board = Game.getPlayerBoard(playerId);
         const boardCell = board.getCell(position);
 
         if (board.getAttackHistory().has(boardCell)) return;
@@ -255,6 +244,17 @@ function Dom() {
         }
     }
 
+    function handleFinishPlacement(playerId) {
+        const requiredShipCount = Game.getSettings().startingShips.length;
+
+        const playerBoard = Game.getPlayerBoard(playerId);
+
+        // Warn the users that they need to place all the available ships down
+        if (playerBoard.getShips().length < requiredShipCount) return;
+
+        Game.placedShips(playerId);
+    }
+
     function setupShipPlacement(section, playerId) {
         function isPlacing() {
             return (
@@ -272,6 +272,8 @@ function Dom() {
         const direction = placementDirections[playerId];
 
         const placementResetButton = section.querySelector(".reset-ships");
+        const placementFinishButton =
+            section.querySelector(".finish-placement");
 
         let targetCell;
 
@@ -281,6 +283,12 @@ function Dom() {
             if (Game.getWhosPlacing() !== playerId) return;
 
             handlePlacementReset(playerId);
+        });
+
+        placementFinishButton.addEventListener("click", () => {
+            if (!isPlacing()) return;
+
+            handleFinishPlacement(playerId);
         });
 
         directionText.textContent = `${direction.charAt(0).toUpperCase()}${direction.slice(1)}`;
@@ -353,10 +361,12 @@ function Dom() {
 
         const boardDiv = section.querySelector(".player-board");
 
-        boardDiv.addEventListener("click", () => {
+        boardDiv.addEventListener("click", (event) => {
             if (!isPlaying()) return;
 
-            handleBoardClick(playerId);
+            if (!event.target.classList.contains("board-cell")) return;
+
+            handleBoardClick(playerId, event);
         });
     }
 
