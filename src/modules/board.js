@@ -85,22 +85,6 @@ export default function board() {
         });
     }
 
-    function placeShipInDirection(from, direction, length) {
-        let endPos = [0, 0];
-
-        if (direction === "up") {
-            endPos = [from[0], from[1] + length];
-        } else if (direction === "down") {
-            endPos = [from[0], from[1] - length];
-        } else if (direction === "left") {
-            endPos = [from[0] - length, from[1]];
-        } else if (direction === "right") {
-            endPos = [from[0] + length, from[1]];
-        }
-
-        placeShip(from, endPos);
-    }
-
     function clearBoard() {
         board = createBoard();
 
@@ -192,7 +176,6 @@ export default function board() {
 
     return {
         placeShip,
-        placeShipInDirection,
         receiveAttack,
         clearBoard,
         hasAllShipsSunk,
