@@ -13,48 +13,50 @@
     justify-content: center;
 }
 
-.board-cell {
-    width: var(--cell-size);
-    height: var(--cell-size);
-    border: 1px solid;
-    background: var(--water-c);
+.player-section {
+    .board-cell {
+        width: var(--cell-size);
+        height: var(--cell-size);
+        border: 1px solid;
+        background: var(--water-c);
 
-    &.hit {
-        background: var(--miss-c);
+        &.has-ship {
+            background-color: var(--ship-c);
+        }
 
-        &::after {
-            content: "x";
+        &.has-ghost-ship {
+            background-color: var(--ship-c);
+        }
+
+        &.hit {
+            background-color: var(--miss-c);
+
+            &.has-ship {
+                background-color: var(--hit-c);
+
+                &.sunk-ship {
+                    background-color: var(--sunk-ship-c);
+                }
+            }
         }
     }
-}
 
-.board-cell.has-ship {
-    &.hit {
-        background: var(--hit-c);
+    &.active {
+        .player-board {
+            outline: 4px solid green;
+        }
+
+        .board-cell {
+            cursor: pointer;
+        }
     }
 
-    &.sunk-ship {
-        background: var(--sunk-ship-c);
-    }
-
-    background: var(--ship-c);
-}
-
-.board-cell.has-ghost-ship {
-    background-color: var(--hit-c);
-}
-
-.board-cell.invalid-ghost-ship {
-    background-color: var(--sunk-ship-c);
-}
-
-.player-section.active {
-    .player-board {
-        outline: 4px solid green;
-    }
-
-    .board-cell {
-        cursor: pointer;
+    &.hidden {
+        .board-cell {
+            &:not(.hit) {
+                background-color: var(--water-c);
+            }
+        }
     }
 }
 

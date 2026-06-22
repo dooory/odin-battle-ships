@@ -25,10 +25,23 @@ function Dom() {
         section1.classList.remove("active");
         section2.classList.remove("active");
 
-        if (Game.getWhosPlaying() === 0 || Game.getWhosPlacing() === 0) {
+        section1.classList.remove("hidden");
+        section2.classList.remove("hidden");
+
+        if (Game.getWhosPlacing() === 0) {
             section1.classList.add("active");
-        } else if (Game.getWhosPlaying() === 1 || Game.getWhosPlacing() === 1) {
+        } else if (Game.getWhosPlacing() === 1) {
             section2.classList.add("active");
+        }
+
+        console.log(Game.getWhosPlaying());
+
+        if (Game.getWhosPlaying() === 1) {
+            section1.classList.add("active");
+            section1.classList.add("hidden");
+        } else if (Game.getWhosPlaying() === 0) {
+            section2.classList.add("active");
+            section2.classList.add("hidden");
         }
 
         const board1Table = renderBoard(board1);
@@ -351,7 +364,7 @@ function Dom() {
         function isPlaying() {
             return (
                 Game.getStatus() === "playing" &&
-                Game.getWhosPlaying() === playerId
+                Game.getWhosPlaying() !== playerId
             );
         }
 
