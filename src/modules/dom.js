@@ -22,14 +22,12 @@ function Dom() {
         const player1Board = section1.querySelector(".player-board");
         const player2Board = section2.querySelector(".player-board");
 
-        if (Game.getStatus() !== "playing") {
-            section1.classList.remove("active");
-            section2.classList.remove("active");
-        } else if (Game.getWhosPlaying() === 0) {
+        section1.classList.remove("active");
+        section2.classList.remove("active");
+
+        if (Game.getWhosPlaying() === 0 || Game.getWhosPlacing() === 0) {
             section1.classList.add("active");
-            section2.classList.remove("active");
-        } else {
-            section1.classList.remove("active");
+        } else if (Game.getWhosPlaying() === 1 || Game.getWhosPlacing() === 1) {
             section2.classList.add("active");
         }
 
@@ -250,6 +248,7 @@ function Dom() {
         if (playerBoard.getShips().length < requiredShipCount) return;
 
         Game.placedShips(playerId);
+        renderGame();
     }
 
     function setupShipPlacement(section, playerId) {

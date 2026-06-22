@@ -45,13 +45,13 @@ function Game() {
         Dom.renderGame(boards);
     }
 
-    function placedShips() {
+    function placedShips(lastPlacer) {
         if (
-            getPlayerBoard(whosPlacing).getShips().length <
+            getPlayerBoard(lastPlacer).getShips().length <
             settings.startingShips.length
         ) {
             throw new Error(
-                `Player <${whosPlacing}> hasn't placed all of their ships!`,
+                `Player <${lastPlacer}> hasn't placed all of their ships!`,
             );
         }
 
@@ -167,10 +167,14 @@ function Game() {
     }
 
     function getWhosPlacing() {
+        if (getStatus() !== "placing") return null;
+
         return whosPlacing;
     }
 
     function getWhosPlaying() {
+        if (getStatus() !== "playing") return null;
+
         return roundNumber % 2;
     }
 
@@ -179,6 +183,7 @@ function Game() {
             throw new Error(`Game status is already set to <${newStatus}>`);
         }
 
+        console.log(`${status} -> ${newStatus}`);
         status = newStatus;
     }
 
