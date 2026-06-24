@@ -213,10 +213,9 @@ function Dom() {
     function handleBoardClick(playerId, event) {
         const board = Game.getPlayerBoard(playerId);
         const attacksTaken = board.getAttackHistory().size;
-        const maxAttacksTaken = Math.floor(Game.getRound() / 2) + 1;
+        const maxAttacksTaken = Math.ceil(Game.getRound() / 2);
 
         // Check if attack has already been done
-
         if (attacksTaken >= maxAttacksTaken) {
             return;
         }
@@ -269,7 +268,7 @@ function Dom() {
 
         board.clearBoard();
 
-        renderPlacementShips(0, board.getAvailableShips());
+        renderPlacementShips(playerId, board.getAvailableShips());
     }
 
     function handleRotatePlacement(playerId, directionText) {
@@ -382,6 +381,7 @@ function Dom() {
                 el.removeAttribute("style");
             });
         } else {
+            placementControls[playerId].style.display = "none";
             shipCounts[playerId].removeAttribute("style");
         }
 

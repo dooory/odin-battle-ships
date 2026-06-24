@@ -3,7 +3,7 @@ import Player from "./player.js";
 
 const settings = {
     ai: false,
-    startingShips: [2],
+    startingShips: [2, 3],
 };
 
 function Game() {
@@ -31,7 +31,7 @@ function Game() {
 
         setStatus("placing");
 
-        roundNumber = -1;
+        roundNumber = 0;
         whosPlacing = 0;
 
         const [board1, board2] = getPlayerBoards();
