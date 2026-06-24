@@ -1,6 +1,16 @@
 import Game from "./game.js";
 
 const boardTemplate = document.getElementById("boardTemplate");
+const gameContainer = document.getElementById("game");
+
+const mainMenu = document.getElementById("mainMenu");
+const newGameForm = document.getElementById("newGameForm");
+
+const player1NameInput = document.getElementById("player1NameInput");
+const player2NameInput = document.getElementById("player2NameInput");
+const computerCheckbox = document.getElementById("computerCheckbox");
+
+const playerNameElements = document.querySelectorAll(".player-name");
 
 const rotateOrder = ["right", "up"];
 
@@ -9,8 +19,18 @@ function Dom() {
     let draggingShipLength;
     const placementDirections = ["right", "right"];
 
+    setupAllSections();
+    setupMainMenu();
+
+    goToMainMenu();
+
     function clearBoard(board) {
         board.textContent = "";
+    }
+
+    function goToMainMenu() {
+        mainMenu.showModal();
+        gameContainer.style.display = "none";
     }
 
     function renderGame(boards = Game.getPlayerBoards()) {
@@ -33,8 +53,6 @@ function Dom() {
         } else if (Game.getWhosPlacing() === 1) {
             section2.classList.add("active");
         }
-
-        console.log(Game.getWhosPlaying());
 
         if (Game.getWhosPlaying() === 1) {
             section1.classList.add("active");
@@ -264,6 +282,36 @@ function Dom() {
         renderGame();
     }
 
+    function handleNewGame() {
+        if (Game.getStatus() !== "intermission") {
+            return;
+        }
+
+        const player1Name = player1NameInput.value;
+        const player2Name = player2NameInput.value;
+
+        const versingComputer = computerCheckbox.checked;
+        Game.start(player1Name, player2Name, versingComputer);
+
+        const [player1Element, player2Element] = playerNameElements;
+
+        player1Element.textContent = player1Name;
+        player2Element.textContent =
+            (!versingComputer && player2Name) || "Computer";
+
+        gameContainer.removeAttribute("style");
+    }
+
+    function handleComputerCheckbox(event) {
+        const isChecked = event.target.checked;
+
+        if (isChecked === false) {
+            player2NameInput.disabled = false;
+        } else if (isChecked === true) {
+            player2NameInput.disabled = true;
+        }
+    }
+
     function setupShipPlacement(section, playerId) {
         function isPlacing() {
             return (
@@ -390,6 +438,11 @@ function Dom() {
         const sections = document.querySelectorAll(".player-section");
 
         sections.forEach(setupSection);
+    }
+
+    function setupMainMenu() {
+        newGameForm.addEventListener("submit", handleNewGame);
+        computerCheckbox.addEventListener("change", handleComputerCheckbox);
     }
 
     return {

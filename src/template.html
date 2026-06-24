@@ -9,11 +9,32 @@
     <template id="boardTemplate">
         <table class="game-board"></table>
     </template>
-    <div id="game">
+    <dialog id="mainMenu">
+        <form method="dialog" id="newGameForm">
+            <div class="form-container">
+                <h1>Battleships!</h1>
+                <div class="controls-container">
+                    <div class="player-names">
+                        <label for="player1NameInput">Player 1</label>
+                        <input type="text" id="player1NameInput" placeholder="Player 1 Name..." name="player1Name" required>
+                        <label for="player2NameInput">Player 2</label>
+                        <input type="text" id="player2NameInput" placeholder="Player 2 Name..." name="player2Name" required>
+                    </div>
+                    <div class="settings">
+                        <label for="computerCheckbox">Computer Opponent</label>
+                        <input type="checkbox" id="computerCheckbox">
+                    </div>
+                    <div class="buttons">
+                        <button id="createNewGame" type="submit">New Game</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </dialog>
+    <div id="game" style="display: none;">
         <div id="player1Section" class="player-section" data-index="0">
             <div class="banner">
-
-                <h2>Player 1</h2>
+                <h2 class="player-name">Player 1</h2>
             </div>
             <div class="player-board"></div>
             <div class="placement-container">
@@ -31,7 +52,7 @@
         </div>
         <div id="player2Section" class="player-section" data-index="1">
             <div class="banner">
-                <h2>Computer</h2>
+                <h2 class="player-name">Player 2</h2>
             </div>
             <div class="player-board"></div>
             <div class="placement-container">

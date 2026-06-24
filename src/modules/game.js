@@ -13,13 +13,20 @@ function Game() {
     let roundNumber;
     let whosPlacing;
 
-    function start(player1Name, player2Name) {
+    function start(player1Name, player2Name, versingComputer) {
         if (status !== "intermission") {
             throw new Error("Game must be in intermission to start");
         }
 
+        settings.ai = versingComputer;
+
         players[0].setName(player1Name);
-        players[1].setName(player2Name);
+
+        if (settings.ai === true) {
+            players[1].setName("Computer");
+        } else {
+            players[1].setName(player2Name);
+        }
 
         setStatus("placing");
 
