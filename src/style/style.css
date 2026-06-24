@@ -7,13 +7,28 @@
     --miss-c: rgb(225, 225, 100);
 }
 
-#game {
+.game-status-bar {
+    text-align: center;
+}
+
+.player-sections {
     display: flex;
     gap: 2rem;
     justify-content: center;
 }
 
 .player-section {
+    .banner {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+
+        h2,
+        h3 {
+            margin: 1rem 0 1rem 0;
+        }
+    }
+
     .board-cell {
         width: var(--cell-size);
         height: var(--cell-size);

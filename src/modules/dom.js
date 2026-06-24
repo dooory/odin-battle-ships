@@ -11,6 +11,13 @@ const player2NameInput = document.getElementById("player2NameInput");
 const computerCheckbox = document.getElementById("computerCheckbox");
 
 const playerNameElements = document.querySelectorAll(".player-name");
+const shipCounts = document.querySelectorAll(".ship-count");
+
+const gameStatus = document.getElementById("currentGameStatus");
+
+const availableShipCounts = document.querySelectorAll(".available-ship-count");
+
+const placementControls = document.querySelectorAll(".placement-container");
 
 const rotateOrder = ["right", "up"];
 
@@ -70,6 +77,8 @@ function Dom() {
 
         player1Board.append(board1Table);
         player2Board.append(board2Table);
+
+        updateGameStatus();
     }
 
     function renderBoard(board) {
@@ -107,6 +116,43 @@ function Dom() {
         }
 
         return boardEl;
+    }
+
+    function updateGameStatus() {
+        const status = Game.getStatus();
+        const players = Game.getPlayers();
+
+        if (status === "playing") {
+            const roundNumber = Game.getRound();
+
+            const attacker = Game.getPlayer(Game.getWhosPlaying());
+
+            shipCounts.forEach((el, index) => {
+                const player = players[index];
+                const board = player.getBoard();
+                const unsunkShips = board
+                    .getShips()
+                    .filter((ship) => !ship.hasSunk());
+
+                el.textContent = `${unsunkShips.length} ships left`;
+            });
+
+            gameStatus.textContent = `${attacker.getName()} is attacking!`;
+        } else if (status === "placing") {
+            const placer = Game.getPlayer(Game.getWhosPlacing());
+
+            availableShipCounts.forEach((el, index) => {
+                const player = players[index];
+                const board = player.getBoard();
+                const availableShips = board.getAvailableShips().length;
+
+                el.textContent = `${availableShips} ships left`;
+            });
+
+            gameStatus.textContent = `${placer.getName()} is placing their ships`;
+        } else if (status === "intermission") {
+            gameStatus.textContent = `${Game.getLastWinner().getName()} has won the game!`;
+        }
     }
 
     function createPlacementShip(length) {
@@ -278,6 +324,18 @@ function Dom() {
         // Warn the users that they need to place all the available ships down
         if (playerBoard.getShips().length < requiredShipCount) return;
 
+        if (Game.getSettings().ai) {
+            placementControls.forEach((el) => {
+                el.style.display = "none";
+            });
+
+            shipCounts.forEach((el) => {
+                el.removeAttribute("style");
+            });
+        } else {
+            shipCounts[playerId].removeAttribute("style");
+        }
+
         Game.placedShips(playerId);
         renderGame();
     }
@@ -301,6 +359,14 @@ function Dom() {
 
         mainMenu.style.display = "none";
         gameContainer.removeAttribute("style");
+
+        placementControls.forEach((el) => {
+            el.removeAttribute("style");
+        });
+
+        shipCounts.forEach((el) => {
+            el.style.display = "none";
+        });
     }
 
     function handleComputerCheckbox(event) {
@@ -450,6 +516,7 @@ function Dom() {
         renderGame,
         renderPlacementShips,
         setupAllSections,
+        updateGameStatus,
     };
 }
 

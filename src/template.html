@@ -32,40 +32,50 @@
         </form>
     </div>
     <div id="game" style="display: none;">
-        <div id="player1Section" class="player-section" data-index="0">
-            <div class="banner">
-                <h2 class="player-name">Player 1</h2>
-            </div>
-            <div class="player-board"></div>
-            <div class="placement-container">
-                <div class="header">
-                    <h3>Available Ships</h3>
-                    <button class="reset-ships" type="button">Reset</button>
-                    <button class="finish-placement" type="button">Finish</button>
-                </div>
-                <div class="placement-controls">
-                    <button class="rotate-ship" type="button">Rotate</button>
-                    <span class="current-direction"></span>
-                </div>
-                <div class="available-ships"></div>
-            </div>
+        <div class="game-status-bar">
+            <h2 id="currentGameStatus">Player 1 is placing</h2>
         </div>
-        <div id="player2Section" class="player-section" data-index="1">
-            <div class="banner">
-                <h2 class="player-name">Player 2</h2>
+        <hr>
+        <div class="player-sections">
+            <div id="player1Section" class="player-section" data-index="0">
+                <div class="banner">
+                    <h2 class="player-name">Player 1</h2>
+                    <h3 class="ship-count">Ships left: 999</h3>
+                </div>
+                <div class="player-board"></div>
+                <div class="placement-container">
+                    <div class="header">
+                        <h3>Available Ships</h3>
+                        <h3 class="available-ship-count">Ships left: 999</h3>
+                    </div>
+                    <div class="placement-controls">
+                        <button class="reset-ships" type="button">Reset</button>
+                        <button class="finish-placement" type="button">Finish</button>
+                        <button class="rotate-ship" type="button">Rotate</button>
+                        <span class="current-direction"></span>
+                    </div>
+                    <div class="available-ships"></div>
+                </div>
             </div>
-            <div class="player-board"></div>
-            <div class="placement-container">
-                <div class="header">
-                    <h3>Available Ships</h3>
-                    <button class="reset-ships" type="button">Reset</button>
-                    <button class="finish-placement" type="button">Finish</button>
+            <div id="player2Section" class="player-section" data-index="1">
+                <div class="banner">
+                    <h2 class="player-name">Player 2</h2>
+                    <h3 class="ship-count">Ships left: 999</h3>
                 </div>
-                <div class="placement-controls">
-                    <button class="rotate-ship" type="button">Rotate</button>
-                    <span class="current-direction"></span>
+                <div class="player-board"></div>
+                <div class="placement-container">
+                    <div class="header">
+                        <h3>Available Ships</h3>
+                        <h3 class="available-ship-count">Ships left: 999</h3>
+                    </div>
+                    <div class="placement-controls">
+                        <button class="reset-ships" type="button">Reset</button>
+                        <button class="finish-placement" type="button">Finish</button>
+                        <button class="rotate-ship" type="button">Rotate</button>
+                        <span class="current-direction"></span>
+                    </div>
+                    <div class="available-ships"></div>
                 </div>
-                <div class="available-ships"></div>
             </div>
         </div>
     </div>

@@ -3,7 +3,7 @@ import Player from "./player.js";
 
 const settings = {
     ai: false,
-    startingShips: [2],
+    startingShips: [2, 3],
 };
 
 function Game() {
@@ -12,6 +12,7 @@ function Game() {
     let status = "intermission";
     let roundNumber;
     let whosPlacing;
+    let lastWinner;
 
     function start(player1Name, player2Name, versingComputer) {
         if (status !== "intermission") {
@@ -44,9 +45,10 @@ function Game() {
             throw new Error("Game must be ongoing to end");
         }
 
+        Dom.updateGameStatus();
         setStatus("intermission");
 
-        console.log(`Player ${winner.getName()} won!`);
+        lastWinner = winner;
 
         Dom.renderGame();
     }
@@ -87,18 +89,19 @@ function Game() {
             throw new Error("Game is currently not ongoing");
         }
 
+        const players = getPlayers();
         const boards = getPlayerBoards();
 
-        const winnerId = boards.findIndex((board, index) => {
+        const winner = players.find((player, index) => {
             const nextIndex = (index + 1) % 2;
+            const board = player.getBoard();
+            const nextBoard = players[nextIndex].getBoard();
 
-            return (
-                !board.hasAllShipsSunk() && boards[nextIndex].hasAllShipsSunk()
-            );
+            return !board.hasAllShipsSunk() && nextBoard.hasAllShipsSunk();
         });
 
-        if (winnerId !== -1) {
-            end(players[winnerId]);
+        if (winner !== undefined) {
+            end(winner);
 
             return;
         }
@@ -172,6 +175,10 @@ function Game() {
         return roundNumber % 2;
     }
 
+    function getLastWinner() {
+        return lastWinner;
+    }
+
     function setStatus(newStatus) {
         if (status === newStatus) {
             throw new Error(`Game status is already set to <${newStatus}>`);
@@ -196,6 +203,7 @@ function Game() {
         getSettings,
         getWhosPlacing,
         getWhosPlaying,
+        getLastWinner,
     };
 }
 
