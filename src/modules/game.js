@@ -3,7 +3,7 @@ import Player from "./player.js";
 
 const settings = {
     ai: false,
-    startingShips: [2, 3],
+    startingShips: [2],
 };
 
 function Game() {

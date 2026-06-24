@@ -1,7 +1,10 @@
+import game from "./game.js";
 import Game from "./game.js";
 
 const boardTemplate = document.getElementById("boardTemplate");
 const gameContainer = document.getElementById("game");
+
+const sections = document.querySelectorAll(".player-section");
 
 const mainMenu = document.getElementById("mainMenu");
 const newGameForm = document.getElementById("newGameForm");
@@ -19,6 +22,10 @@ const availableShipCounts = document.querySelectorAll(".available-ship-count");
 
 const placementControls = document.querySelectorAll(".placement-container");
 
+const finishTurnButton = document.getElementById("finishTurn");
+const nextTurnButton = document.getElementById("nextPlayersTurn");
+const nextTurnDialog = document.getElementById("nextTurnOverlay");
+
 const rotateOrder = ["right", "up"];
 
 function Dom() {
@@ -30,6 +37,9 @@ function Dom() {
     setupMainMenu();
 
     goToMainMenu();
+
+    nextTurnButton.addEventListener("click", handleNextTurnDialog);
+    finishTurnButton.addEventListener("click", handleFinishTurn);
 
     function clearBoard(board) {
         board.textContent = "";
@@ -56,8 +66,10 @@ function Dom() {
         section2.classList.remove("hidden");
 
         if (Game.getWhosPlacing() === 0) {
+            section2.classList.add("hidden");
             section1.classList.add("active");
         } else if (Game.getWhosPlacing() === 1) {
+            section1.classList.add("hidden");
             section2.classList.add("active");
         }
 
@@ -69,6 +81,12 @@ function Dom() {
             section2.classList.add("hidden");
         }
 
+        if (Game.getStatus() === "playing") {
+            finishTurnButton.disabled = false;
+        } else {
+            finishTurnButton.disabled = true;
+        }
+
         const board1Table = renderBoard(board1);
         const board2Table = renderBoard(board2);
 
@@ -77,6 +95,8 @@ function Dom() {
 
         player1Board.append(board1Table);
         player2Board.append(board2Table);
+
+        handleBoardVisibility();
 
         updateGameStatus();
     }
@@ -191,26 +211,55 @@ function Dom() {
     }
 
     function handleBoardClick(playerId, event) {
+        const board = Game.getPlayerBoard(playerId);
+        const attacksTaken = board.getAttackHistory().size;
+        const maxAttacksTaken = Math.floor(Game.getRound() / 2) + 1;
+
+        // Check if attack has already been done
+
+        if (attacksTaken >= maxAttacksTaken) {
+            return;
+        }
+
         const attackCell = event.target;
         const position = [
             Number(attackCell.dataset.x),
             Number(attackCell.dataset.y),
         ];
 
-        const board = Game.getPlayerBoard(playerId);
         const boardCell = board.getCell(position);
 
         if (board.getAttackHistory().has(boardCell)) return;
 
         board.receiveAttack(position);
 
-        Game.nextRound();
+        if (board.hasAllShipsSunk()) {
+            Game.nextRound();
+            renderGame();
+
+            return;
+        }
 
         if (Game.getStatus() === "intermission") {
             return;
         }
 
+        if (Game.getSettings().ai === true) {
+            Game.nextRound();
+            renderGame();
+        }
+
         renderGame();
+    }
+
+    function handleNextTurnDialog() {
+        nextTurnDialog.close();
+    }
+
+    function handleFinishTurn() {
+        Game.nextRound();
+        renderGame();
+        nextTurnDialog.showModal();
     }
 
     function handlePlacementReset(playerId) {
@@ -337,6 +386,7 @@ function Dom() {
         }
 
         Game.placedShips(playerId);
+
         renderGame();
     }
 
@@ -376,6 +426,26 @@ function Dom() {
             player2NameInput.disabled = false;
         } else if (isChecked === true) {
             player2NameInput.disabled = true;
+        }
+    }
+
+    function handleBoardVisibility() {
+        if (Game.getStatus() === "playing") {
+            const nextAttackerId = Game.getWhosPlaying();
+            const prevAttackerId = (nextAttackerId + 1) % 2;
+
+            sections[prevAttackerId].classList.add("hidden");
+            sections[nextAttackerId].classList.remove("hidden");
+        } else if (Game.getStatus() === "placing") {
+            const nextPlacerId = Game.getWhosPlacing();
+            const prevPlacerId = (nextPlacerId + 1) % 2;
+
+            sections[prevPlacerId].classList.add("hidden");
+            sections[nextPlacerId].classList.remove("hidden");
+        } else if (Game.getStatus() === "intermission") {
+            sections.forEach((section) => {
+                section.classList.remove("hidden");
+            });
         }
     }
 
@@ -502,8 +572,6 @@ function Dom() {
     }
 
     function setupAllSections() {
-        const sections = document.querySelectorAll(".player-section");
-
         sections.forEach(setupSection);
     }
 

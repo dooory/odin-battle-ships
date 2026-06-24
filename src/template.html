@@ -9,6 +9,9 @@
     <template id="boardTemplate">
         <table class="game-board"></table>
     </template>
+    <dialog id="nextTurnOverlay">
+        <button type="button" id="nextPlayersTurn">Start next players turn</button>
+    </dialog>
     <div id="mainMenu" style="display: none;">
         <form method="dialog" id="newGameForm">
             <div class="form-container">
@@ -57,6 +60,9 @@
                     <div class="available-ships"></div>
                 </div>
             </div>
+            <div class="turn-controls">
+                <button type="button" id="finishTurn" disabled>Finish your turn</button>
+            </div>
             <div id="player2Section" class="player-section" data-index="1">
                 <div class="banner">
                     <h2 class="player-name">Player 2</h2>
@@ -78,6 +84,9 @@
                 </div>
             </div>
         </div>
+    </div>
+    <div class="restart-game-container" style="display: none;">
+        <button id="restartGame" type="button">Start New Game</button>
     </div>
 </body>
 </html>
