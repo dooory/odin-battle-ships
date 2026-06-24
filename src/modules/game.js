@@ -44,12 +44,11 @@ function Game() {
             throw new Error("Game must be ongoing to end");
         }
 
-        const boards = getPlayerBoards();
         setStatus("intermission");
 
         console.log(`Player ${winner.getName()} won!`);
 
-        Dom.renderGame(boards);
+        Dom.renderGame();
     }
 
     function placedShips(lastPlacer) {
@@ -134,10 +133,6 @@ function Game() {
     }
 
     function getPlayer(id) {
-        if (status === "intermission") {
-            throw new Error("No players available as no game is ongoing");
-        }
-
         if (players[id] === undefined) {
             throw new Error(`No player with id <${id}> found`);
         }
@@ -146,18 +141,10 @@ function Game() {
     }
 
     function getPlayers() {
-        if (status === "intermission") {
-            throw new Error("No players available as no game is ongoing");
-        }
-
         return players;
     }
 
     function getPlayerBoards() {
-        if (status === "intermission") {
-            throw new Error("No players available as no game is ongoing");
-        }
-
         return players.map((plr) => plr.getBoard());
     }
 

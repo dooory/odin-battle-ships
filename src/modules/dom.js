@@ -33,8 +33,8 @@ function Dom() {
         gameContainer.style.display = "none";
     }
 
-    function renderGame(boards = Game.getPlayerBoards()) {
-        const [board1, board2] = boards;
+    function renderGame() {
+        const [board1, board2] = Game.getPlayerBoards();
 
         const section1 = document.getElementById("player1Section");
         const section2 = document.getElementById("player2Section");
