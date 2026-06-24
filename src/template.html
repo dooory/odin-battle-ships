@@ -9,7 +9,7 @@
     <template id="boardTemplate">
         <table class="game-board"></table>
     </template>
-    <dialog id="mainMenu">
+    <div id="mainMenu" style="display: none;">
         <form method="dialog" id="newGameForm">
             <div class="form-container">
                 <h1>Battleships!</h1>
@@ -30,7 +30,7 @@
                 </div>
             </div>
         </form>
-    </dialog>
+    </div>
     <div id="game" style="display: none;">
         <div id="player1Section" class="player-section" data-index="0">
             <div class="banner">

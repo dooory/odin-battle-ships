@@ -29,7 +29,7 @@ function Dom() {
     }
 
     function goToMainMenu() {
-        mainMenu.showModal();
+        mainMenu.removeAttribute("style");
         gameContainer.style.display = "none";
     }
 
@@ -299,6 +299,7 @@ function Dom() {
         player2Element.textContent =
             (!versingComputer && player2Name) || "Computer";
 
+        mainMenu.style.display = "none";
         gameContainer.removeAttribute("style");
     }
 
