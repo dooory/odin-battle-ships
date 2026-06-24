@@ -30,7 +30,7 @@ function Game() {
 
         setStatus("placing");
 
-        roundNumber = 0;
+        roundNumber = -1;
         whosPlacing = 0;
 
         const [board1, board2] = getPlayerBoards();
@@ -39,7 +39,7 @@ function Game() {
         Dom.renderPlacementShips(1, board2.getAvailableShips());
     }
 
-    function end(winnerId) {
+    function end(winner) {
         if (status !== "playing") {
             throw new Error("Game must be ongoing to end");
         }
@@ -47,7 +47,7 @@ function Game() {
         const boards = getPlayerBoards();
         setStatus("intermission");
 
-        console.log(`Player ${winnerId} won!`);
+        console.log(`Player ${winner.getName()} won!`);
 
         Dom.renderGame(boards);
     }
@@ -70,6 +70,8 @@ function Game() {
             settings.startingShips.forEach((length, index) => {
                 aiBoard.placeShip([index, 0], [index, length - 1]);
             });
+
+            whosPlacing += 1;
         }
 
         // If all players have placed their ships, start.
@@ -78,8 +80,6 @@ function Game() {
 
             nextRound();
             Dom.renderGame();
-
-            return;
         }
     }
 
@@ -99,14 +99,14 @@ function Game() {
         });
 
         if (winnerId !== -1) {
-            end(winnerId);
+            end(players[winnerId]);
 
             return;
         }
 
         roundNumber += 1;
 
-        if (getSettings().ai && getWhosPlaying() === 0) {
+        if (getSettings().ai && getWhosPlaying() === 1) {
             const playerBoard = boards[0];
             const boardArray = boards[0].getBoard();
             const attackHistory = playerBoard.getAttackHistory();
