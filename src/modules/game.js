@@ -21,23 +21,31 @@ function Game() {
 
         settings.ai = versingComputer;
 
+        players.forEach((player) => {
+            player.getBoard().clearBoard();
+        });
+
         players[0].setName(player1Name);
 
         if (settings.ai === true) {
             players[1].setName("Computer");
+            roundNumber = -1;
         } else {
             players[1].setName(player2Name);
+            roundNumber = 0;
         }
 
         setStatus("placing");
 
-        roundNumber = 0;
         whosPlacing = 0;
 
         const [board1, board2] = getPlayerBoards();
 
         Dom.renderPlacementShips(0, board1.getAvailableShips());
-        Dom.renderPlacementShips(1, board2.getAvailableShips());
+
+        if (settings.ai === false) {
+            Dom.renderPlacementShips(1, board2.getAvailableShips());
+        }
     }
 
     function end(winner) {

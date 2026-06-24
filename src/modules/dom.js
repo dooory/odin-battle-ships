@@ -1,4 +1,3 @@
-import game from "./game.js";
 import Game from "./game.js";
 
 const boardTemplate = document.getElementById("boardTemplate");
@@ -26,12 +25,15 @@ const finishTurnButton = document.getElementById("finishTurn");
 const nextTurnButton = document.getElementById("nextPlayersTurn");
 const nextTurnDialog = document.getElementById("nextTurnOverlay");
 
+const restartButton = document.getElementById("restartGameButton");
+const restartGameContainer = document.getElementById("restartGameContainer");
+
 const rotateOrder = ["right", "up"];
 
 function Dom() {
     let whosDragging;
     let draggingShipLength;
-    const placementDirections = ["right", "right"];
+    let placementDirections = ["right", "right"];
 
     setupAllSections();
     setupMainMenu();
@@ -40,12 +42,15 @@ function Dom() {
 
     nextTurnButton.addEventListener("click", handleNextTurnDialog);
     finishTurnButton.addEventListener("click", handleFinishTurn);
+    restartButton.addEventListener("click", handleRestart);
 
     function clearBoard(board) {
         board.textContent = "";
     }
 
     function goToMainMenu() {
+        newGameForm.reset();
+        player2NameInput.disabled = false;
         mainMenu.removeAttribute("style");
         gameContainer.style.display = "none";
     }
@@ -81,7 +86,7 @@ function Dom() {
             section2.classList.add("hidden");
         }
 
-        if (Game.getStatus() === "playing") {
+        if (Game.getStatus() === "playing" && Game.getSettings().ai !== true) {
             finishTurnButton.disabled = false;
         } else {
             finishTurnButton.disabled = true;
@@ -99,6 +104,10 @@ function Dom() {
         handleBoardVisibility();
 
         updateGameStatus();
+
+        if (Game.getStatus() === "intermission") {
+            restartGameContainer.removeAttribute("style");
+        }
     }
 
     function renderBoard(board) {
@@ -212,12 +221,15 @@ function Dom() {
 
     function handleBoardClick(playerId, event) {
         const board = Game.getPlayerBoard(playerId);
-        const attacksTaken = board.getAttackHistory().size;
-        const maxAttacksTaken = Math.ceil(Game.getRound() / 2);
 
-        // Check if attack has already been done
-        if (attacksTaken >= maxAttacksTaken) {
-            return;
+        if (Game.getSettings().ai === false) {
+            const attacksTaken = board.getAttackHistory().size;
+            const maxAttacksTaken = Math.ceil(Game.getRound() / 2);
+
+            // Check if attack has already been done
+            if (attacksTaken >= maxAttacksTaken) {
+                return;
+            }
         }
 
         const attackCell = event.target;
@@ -395,6 +407,8 @@ function Dom() {
             return;
         }
 
+        placementDirections = ["right", "right"];
+
         const player1Name = player1NameInput.value;
         const player2Name = player2NameInput.value;
 
@@ -417,6 +431,8 @@ function Dom() {
         shipCounts.forEach((el) => {
             el.style.display = "none";
         });
+
+        restartGameContainer.style.display = "none";
     }
 
     function handleComputerCheckbox(event) {
@@ -447,6 +463,11 @@ function Dom() {
                 section.classList.remove("hidden");
             });
         }
+    }
+
+    function handleRestart() {
+        goToMainMenu();
+        restartGameContainer.style.display = "none";
     }
 
     function setupShipPlacement(section, playerId) {
