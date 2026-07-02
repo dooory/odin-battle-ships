@@ -3,7 +3,7 @@ import Player from "./player.js";
 
 const settings = {
     ai: false,
-    startingShips: [2, 3, 4, 5, 6],
+    startingShips: [2, 3],
 };
 
 function getDirection(from, to) {

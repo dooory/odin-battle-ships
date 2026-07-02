@@ -10,25 +10,37 @@
         <table class="game-board"></table>
     </template>
     <dialog id="nextTurnOverlay">
-        <button type="button" id="nextPlayersTurn">Start next players turn</button>
+        <div class="overlay-container">
+            <button type="button" id="nextPlayersTurn">Start next players turn</button>
+        </div>
     </dialog>
     <div id="mainMenu" style="display: none;">
         <form method="dialog" id="newGameForm">
             <div class="form-container">
                 <h1>Battleships!</h1>
                 <div class="controls-container">
-                    <div class="player-names">
-                        <label for="player1NameInput">Player 1</label>
-                        <input type="text" id="player1NameInput" placeholder="Player 1 Name..." name="player1Name" required>
-                        <label for="player2NameInput">Player 2</label>
-                        <input type="text" id="player2NameInput" placeholder="Player 2 Name..." name="player2Name" required>
-                    </div>
-                    <div class="settings">
-                        <label for="computerCheckbox">Computer Opponent</label>
-                        <input type="checkbox" id="computerCheckbox">
+                    <div class="container">
+                        <div class="player-names-section">
+                            <h2>Pick your names</h2>
+                            <div class="player-names">
+                                <div class="player-name">
+                                    <label for="player1NameInput">Player 1</label>
+                                    <input type="text" id="player1NameInput" placeholder="Player 1 Name..." name="player1Name" required>
+                                </div>
+                                <div class="vertical"></div>
+                                <div class="player-name">
+                                    <label for="player2NameInput">Player 2</label>
+                                    <input type="text" id="player2NameInput" placeholder="Player 2 Name..." name="player2Name" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="settings">
+                            <label for="computerCheckbox">Computer Opponent</label>
+                            <input type="checkbox" id="computerCheckbox">
+                        </div>
                     </div>
                     <div class="buttons">
-                        <button id="createNewGame" type="submit">New Game</button>
+                        <button id="createNewGame" type="submit">Start Game</button>
                     </div>
                 </div>
             </div>
@@ -37,8 +49,29 @@
     <div id="game" style="display: none;">
         <div class="game-status-bar">
             <h2 id="currentGameStatus">Player 1 is placing</h2>
+            <div class="instructions">
+                <div class="water">
+                    <span>Water</span>
+                    <div class="icon"></div>
+                </div>
+                <div class="ship">
+                    <span>Ship</span>
+                    <div class="icon"></div>
+                </div>
+                <div class="hit">
+                    <span>Hit Ship</span>
+                    <div class="icon"></div>
+                </div>
+                <div class="sunk">
+                    <span>Sunk Ship</span>
+                    <div class="icon"></div>
+                </div>
+                <div class="miss">
+                    <span>Miss</span>
+                    <div class="icon"></div>
+                </div>
+            </div>
         </div>
-        <hr>
         <div class="player-sections">
             <div id="player1Section" class="player-section" data-index="0">
                 <div class="banner">
@@ -52,16 +85,20 @@
                         <h3 class="available-ship-count">Ships left: 999</h3>
                     </div>
                     <div class="placement-controls">
-                        <button class="reset-ships" type="button">Reset</button>
-                        <button class="finish-placement" type="button">Finish</button>
-                        <button class="rotate-ship" type="button">Rotate</button>
-                        <span class="current-direction"></span>
+                        <div class="misc-controls">
+                            <button class="reset-ships" type="button">Reset</button>
+                            <button class="finish-placement" type="button">Finish</button>
+                        </div>
+                        <div class="rotate-controls">
+                            <button class="rotate-ship" type="button">Rotate</button>
+                            <span class="current-direction"></span>
+                        </div>
                     </div>
                     <div class="available-ships"></div>
                 </div>
             </div>
             <div class="turn-controls">
-                <button type="button" id="finishTurn" disabled>Finish your turn</button>
+                <button type="button" id="finishTurn" disabled>Finish turn</button>
             </div>
             <div id="player2Section" class="player-section" data-index="1">
                 <div class="banner">
@@ -75,10 +112,14 @@
                         <h3 class="available-ship-count">Ships left: 999</h3>
                     </div>
                     <div class="placement-controls">
-                        <button class="reset-ships" type="button">Reset</button>
-                        <button class="finish-placement" type="button">Finish</button>
-                        <button class="rotate-ship" type="button">Rotate</button>
-                        <span class="current-direction"></span>
+                        <div class="misc-controls">
+                            <button class="reset-ships" type="button">Reset</button>
+                            <button class="finish-placement" type="button">Finish</button>
+                        </div>
+                        <div class="rotate-controls">
+                            <button class="rotate-ship" type="button">Rotate</button>
+                            <span class="current-direction"></span>
+                        </div>
                     </div>
                     <div class="available-ships"></div>
                 </div>

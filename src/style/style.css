@@ -1,31 +1,198 @@
 :root {
-    --cell-size: 30px;
+    --cell-size: 25px;
     --ship-c: rgb(95, 95, 95);
     --sunk-ship-c: rgb(255, 100, 100);
     --water-c: rgb(100, 100, 225);
     --hit-c: rgb(100, 225, 100);
     --miss-c: rgb(225, 225, 100);
+
+    --primary-c: rgb(100, 100, 100);
+}
+
+html {
+    font-family:
+        system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+}
+
+#mainMenu {
+    form {
+        display: flex;
+        justify-content: center;
+
+        .form-container {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: fit-content;
+
+            h1 {
+                padding-bottom: 1rem;
+                border-bottom: 1px solid grey;
+            }
+
+            h2 {
+                margin-top: 0;
+            }
+
+            .controls-container {
+                display: grid;
+                gap: 1rem;
+                background-color: var(--ship-c);
+                padding: 1rem;
+                border-radius: 1rem;
+                color: white;
+
+                .container {
+                    display: grid;
+                    gap: 0.5rem;
+                }
+
+                .player-names {
+                    display: flex;
+                    gap: 1rem;
+
+                    .player-name {
+                        display: flex;
+                        flex-wrap: wrap;
+                        justify-content: center;
+                        align-items: center;
+
+                        gap: 0.5rem;
+                        background-color: white;
+                        color: var(--ship-c);
+                        padding: 0.5rem;
+                        border-radius: 0.5rem;
+
+                        input {
+                            background-color: grey;
+                            color: white;
+                            border-radius: 0.5rem;
+                            padding: 0.2rem 0.5rem;
+                            border: none;
+
+                            &::placeholder {
+                                color: rgb(from white r g b / 0.8);
+                            }
+
+                            &:disabled {
+                                background-color: rgb(from grey r g b / 0.25);
+                            }
+                        }
+                    }
+
+                    div.vertical {
+                        background-color: grey;
+                        width: 1px;
+                    }
+                }
+
+                .buttons {
+                    button {
+                        width: 9rem;
+                        height: 3rem;
+                        font-size: 1rem;
+                    }
+                }
+            }
+        }
+    }
 }
 
 .game-status-bar {
-    text-align: center;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+
+    h2 {
+        width: fit-content;
+        background-color: grey;
+        color: white;
+        padding: 1rem;
+        border-radius: 1rem;
+    }
+
+    .instructions {
+        display: flex;
+        flex-wrap: wrap;
+
+        & > div {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+
+            border-left: 1px solid;
+            padding: 0 1rem;
+        }
+
+        & > div:first-child {
+            border-left: none;
+            padding-left: 0;
+        }
+
+        & > div:last-child {
+            padding-right: 0;
+        }
+
+        .icon {
+            border: 1px solid;
+            width: var(--cell-size);
+            height: var(--cell-size);
+        }
+
+        .water .icon {
+            background-color: var(--water-c);
+        }
+
+        .ship .icon {
+            background-color: var(--ship-c);
+        }
+
+        .hit .icon {
+            background-color: var(--hit-c);
+        }
+
+        .sunk .icon {
+            background-color: var(--sunk-ship-c);
+        }
+
+        .miss .icon {
+            background-color: var(--miss-c);
+        }
+    }
 }
 
 .player-sections {
     display: flex;
     gap: 2rem;
     justify-content: center;
+
+    .turn-controls {
+        align-self: center;
+
+        button {
+            font-size: 1rem;
+        }
+    }
 }
 
 .player-section {
+    margin: 1rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+
     .banner {
         display: flex;
         justify-content: space-between;
         align-items: flex-end;
+        align-self: stretch;
 
         h2,
         h3 {
-            margin: 1rem 0 1rem 0;
+            margin: 0;
         }
     }
 
@@ -57,12 +224,16 @@
     }
 
     &.active {
-        .player-board {
-            outline: 4px solid green;
+        .game-board {
+            outline: 3px solid var(--sunk-ship-c);
         }
 
         .board-cell {
             cursor: pointer;
+        }
+
+        .placement-container {
+            outline: 3px solid var(--sunk-ship-c);
         }
     }
 
@@ -78,26 +249,69 @@
 .placement-container {
     display: flex;
     flex-direction: column;
+    gap: 1rem;
+    background-color: rgb(from grey r g b / 0.25);
+    max-width: 310px;
 
     align-items: flex-start;
+
+    padding: 1rem 0.5rem;
+    border-radius: 0.5rem;
 
     .header {
         display: flex;
         align-items: center;
+        justify-content: space-between;
+        width: 100%;
 
         gap: 1rem;
+
+        * {
+            margin: 0;
+        }
     }
 
-    .placement-ship {
-        .ship-segment {
-            width: var(--cell-size);
-            height: var(--cell-size);
+    .placement-controls {
+        display: flex;
+        justify-content: space-between;
+        align-self: stretch;
+        gap: 1rem;
 
-            background-color: var(--ship-c);
+        & > div {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
-        &:not(:last-of-type) {
-            margin-bottom: 1rem;
+        button {
+            width: 65px;
+            height: 30px;
+        }
+
+        .rotate-controls {
+            span {
+                font-size: 0.9rem;
+                background-color: white;
+                padding: 0.25rem;
+                border-radius: 0.25rem;
+                min-width: 50px;
+                text-align: center;
+            }
+        }
+    }
+
+    .available-ships {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+
+        .placement-ship {
+            .ship-segment {
+                width: var(--cell-size);
+                height: var(--cell-size);
+
+                background-color: var(--ship-c);
+            }
         }
     }
 }
@@ -105,8 +319,39 @@
 #nextTurnOverlay {
     width: 100%;
     height: 100%;
+
+    .overlay-container {
+        width: 100%;
+        height: 100%;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        button {
+            height: 8rem;
+            width: 24rem;
+            font-size: 2rem;
+        }
+    }
 }
 
-#finishTurn:disabled {
-    display: none;
+#finishTurn {
+    height: 4rem;
+    cursor: pointer;
+
+    &:disabled {
+        display: none;
+    }
+}
+
+#restartGameContainer {
+    display: flex;
+    justify-content: center;
+
+    button {
+        cursor: pointer;
+        width: 8rem;
+        height: 4rem;
+    }
 }

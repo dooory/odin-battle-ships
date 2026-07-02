@@ -12,7 +12,9 @@ const player1NameInput = document.getElementById("player1NameInput");
 const player2NameInput = document.getElementById("player2NameInput");
 const computerCheckbox = document.getElementById("computerCheckbox");
 
-const playerNameElements = document.querySelectorAll(".player-name");
+const playerNameElements = document.querySelectorAll(
+    ".player-sections .player-name",
+);
 const shipCounts = document.querySelectorAll(".ship-count");
 
 const gameStatus = document.getElementById("currentGameStatus");
@@ -152,8 +154,6 @@ function Dom() {
         const players = Game.getPlayers();
 
         if (status === "playing") {
-            const roundNumber = Game.getRound();
-
             const attacker = Game.getPlayer(Game.getWhosPlaying());
 
             shipCounts.forEach((el, index) => {
@@ -395,6 +395,8 @@ function Dom() {
         } else {
             placementControls[playerId].style.display = "none";
             shipCounts[playerId].removeAttribute("style");
+            shipCounts[playerId].textContent =
+                `${Game.getSettings().startingShips.length} ships left`;
         }
 
         Game.placedShips(playerId);
@@ -427,6 +429,10 @@ function Dom() {
         placementControls.forEach((el) => {
             el.removeAttribute("style");
         });
+
+        if (versingComputer) {
+            placementControls[1].style.display = "none";
+        }
 
         shipCounts.forEach((el) => {
             el.style.display = "none";
