@@ -3,8 +3,157 @@ import Player from "./player.js";
 
 const settings = {
     ai: false,
-    startingShips: [2, 3],
+    startingShips: [2, 3, 4, 5, 6],
 };
+
+function getDirection(from, to) {
+    if (to[0] !== from[0] && to[1] !== from[1]) {
+        return "diagonal";
+    } else if (to[0] !== from[0]) {
+        return "horizontal";
+    } else if (to[1] !== from[1]) {
+        return "vertical";
+    }
+}
+
+function getAiMove(boards) {
+    const playerBoard = boards[0];
+    const boardArray = boards[0].getBoard();
+    const attackHistory = playerBoard.getAttackHistory();
+
+    if (attackHistory.size > 0) {
+        const historyArray = [...attackHistory];
+
+        let targetShip;
+
+        const unsunkenShip = historyArray.filter((cell) => {
+            const ship = cell.ship;
+
+            if (ship === null || ship.hasSunk()) {
+                return false;
+            }
+
+            if (!targetShip) {
+                targetShip = ship;
+
+                return true;
+            }
+
+            if (targetShip !== ship) {
+                return false;
+            }
+
+            return true;
+        });
+
+        const possibleSegmentLocations = [];
+
+        if (unsunkenShip.length === 1) {
+            unsunkenShip.forEach((cell) => {
+                const [x, y] = cell.position;
+
+                if (y + 1 <= 9) {
+                    const aboveCell = playerBoard.getCell([x, y + 1]);
+
+                    if (!attackHistory.has(aboveCell)) {
+                        possibleSegmentLocations.push(aboveCell);
+                    }
+                }
+
+                if (y - 1 >= 0) {
+                    const lowerCell = playerBoard.getCell([x, y - 1]);
+
+                    if (!attackHistory.has(lowerCell)) {
+                        possibleSegmentLocations.push(lowerCell);
+                    }
+                }
+
+                if (x + 1 <= 9) {
+                    const rightCell = playerBoard.getCell([x + 1, y]);
+
+                    if (!attackHistory.has(rightCell)) {
+                        possibleSegmentLocations.push(rightCell);
+                    }
+                }
+
+                if (x - 1 <= 9) {
+                    const leftCell = playerBoard.getCell([x - 1, y]);
+
+                    if (!attackHistory.has(leftCell)) {
+                        possibleSegmentLocations.push(leftCell);
+                    }
+                }
+            });
+        }
+
+        if (unsunkenShip.length > 1) {
+            const shipDirection = getDirection(
+                unsunkenShip[0].position,
+                unsunkenShip[1].position,
+            );
+
+            unsunkenShip.forEach((cell) => {
+                const [x, y] = cell.position;
+
+                if (shipDirection === "horizontal") {
+                    if (x < 9) {
+                        const rightCell = playerBoard.getCell([x + 1, y]);
+
+                        if (!attackHistory.has(rightCell)) {
+                            possibleSegmentLocations.push(rightCell);
+                        }
+                    }
+
+                    if (x > 0) {
+                        const leftCell = playerBoard.getCell([x - 1, y]);
+
+                        if (!attackHistory.has(leftCell)) {
+                            possibleSegmentLocations.push(leftCell);
+                        }
+                    }
+                }
+
+                if (shipDirection === "vertical") {
+                    if (y < 9) {
+                        const aboveCell = playerBoard.getCell([x, y + 1]);
+
+                        if (!attackHistory.has(aboveCell)) {
+                            possibleSegmentLocations.push(aboveCell);
+                        }
+                    }
+
+                    if (y > 0) {
+                        const lowerCell = playerBoard.getCell([x, y - 1]);
+
+                        if (!attackHistory.has(lowerCell)) {
+                            possibleSegmentLocations.push(lowerCell);
+                        }
+                    }
+                }
+            });
+        }
+
+        if (possibleSegmentLocations.length > 0) {
+            const randomIndex = Math.floor(
+                possibleSegmentLocations.length * Math.random(),
+            );
+
+            return possibleSegmentLocations[randomIndex].position;
+        }
+    }
+
+    const legalMoves = boardArray.reduce((acc, cell) => {
+        if (!attackHistory.has(cell)) {
+            acc.push(cell);
+        }
+
+        return acc;
+    }, []);
+
+    const randomIndex = Math.floor(legalMoves.length * Math.random());
+
+    return legalMoves[randomIndex].position;
+}
 
 function Game() {
     const players = [Player("Player 1"), Player("Player 2")];
@@ -118,21 +267,8 @@ function Game() {
 
         if (getSettings().ai && getWhosPlaying() === 1) {
             const playerBoard = boards[0];
-            const boardArray = boards[0].getBoard();
-            const attackHistory = playerBoard.getAttackHistory();
 
-            const legalMoves = boardArray.reduce((acc, cell) => {
-                if (!attackHistory.has(cell)) {
-                    acc.push(cell);
-                }
-
-                return acc;
-            }, []);
-
-            const randomIndex = Math.floor(legalMoves.length * Math.random());
-            const aiMove = legalMoves[randomIndex].position;
-
-            playerBoard.receiveAttack(aiMove);
+            playerBoard.receiveAttack(getAiMove(boards));
 
             Dom.renderGame();
             nextRound();
