@@ -3,7 +3,7 @@ import Player from "./player.js";
 
 const settings = {
     ai: false,
-    startingShips: [2, 3],
+    startingShips: [2, 3, 4, 5, 6],
 };
 
 function getDirection(from, to) {
@@ -155,6 +155,8 @@ function getAiMove(boards) {
     return legalMoves[randomIndex].position;
 }
 
+function getAiPlacement(aiBoard, shipSize) {}
+
 function Game() {
     const players = [Player("Player 1"), Player("Player 2")];
 
@@ -225,8 +227,8 @@ function Game() {
         if (getSettings().ai) {
             const aiBoard = getPlayerBoard(1);
 
-            settings.startingShips.forEach((length, index) => {
-                aiBoard.placeShip([index, 0], [index, length - 1]);
+            settings.startingShips.forEach((length) => {
+                aiBoard.placeShip(getAiPlacement(aiBoard, length));
             });
 
             whosPlacing += 1;

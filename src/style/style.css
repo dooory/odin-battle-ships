@@ -6,7 +6,11 @@
     --hit-c: rgb(100, 225, 100);
     --miss-c: rgb(225, 225, 100);
 
-    --primary-c: rgb(100, 100, 100);
+    --ship-2-c: hsl(from var(--ship-c) h s 80%);
+    --ship-3-c: hsl(from var(--ship-c) h s 65%);
+    --ship-4-c: hsl(from var(--ship-c) h s 50%);
+    --ship-5-c: hsl(from var(--ship-c) h s 35%);
+    --ship-6-c: hsl(from var(--ship-c) h s 20%);
 }
 
 html {
@@ -177,6 +181,30 @@ html {
     }
 }
 
+.has-ship,
+.has-ghost-ship,
+.ship-segment {
+    &[data-length="2"] {
+        background-color: var(--ship-2-c);
+    }
+
+    &[data-length="3"] {
+        background-color: var(--ship-3-c);
+    }
+
+    &[data-length="4"] {
+        background-color: var(--ship-4-c);
+    }
+
+    &[data-length="5"] {
+        background-color: var(--ship-5-c);
+    }
+
+    &[data-length="6"] {
+        background-color: var(--ship-6-c);
+    }
+}
+
 .player-section {
     margin: 1rem 0;
     display: flex;
@@ -200,14 +228,13 @@ html {
         width: var(--cell-size);
         height: var(--cell-size);
         border: 1px solid;
-        background: var(--water-c);
 
-        &.has-ship {
-            background-color: var(--ship-c);
+        &.invalid-ghost-ship {
+            background-color: var(--sunk-ship-c);
         }
 
-        &.has-ghost-ship {
-            background-color: var(--ship-c);
+        &:not(.has-ship):not(.has-ghost-ship):not(.hit) {
+            background: var(--water-c);
         }
 
         &.hit {
@@ -310,7 +337,7 @@ html {
                 width: var(--cell-size);
                 height: var(--cell-size);
 
-                background-color: var(--ship-c);
+                border: 1px solid;
             }
         }
     }

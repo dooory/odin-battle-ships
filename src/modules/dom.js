@@ -133,6 +133,8 @@ function Dom() {
                 }
 
                 if (cellContents.ship !== null) {
+                    cell.dataset.length = cellContents.ship.getLength();
+
                     cell.classList.add("has-ship");
                 }
 
@@ -192,6 +194,7 @@ function Dom() {
 
         for (let i = 0; i < length; i++) {
             const cell = document.createElement("td");
+            cell.dataset.length = length;
 
             shipEl.append(cell);
 
@@ -348,11 +351,11 @@ function Dom() {
 
             if (lastChild.classList.contains("has-ship")) {
                 isInvalidPosition = true;
+            } else {
+                lastChild.classList.add("has-ghost-ship");
+                lastChild.dataset.length = draggingShipLength;
+                shipCells.push(lastChild);
             }
-
-            lastChild.classList.add("has-ghost-ship");
-
-            shipCells.push(lastChild);
 
             if (placementDirections[playerId] === "right") {
                 lastChild = lastChild.nextElementSibling;
