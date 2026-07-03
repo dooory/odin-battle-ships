@@ -155,7 +155,53 @@ function getAiMove(boards) {
     return legalMoves[randomIndex].position;
 }
 
-function getAiPlacement(aiBoard, shipSize) {}
+function getAiPlacement(aiBoard, shipSize) {
+    const freeSpots = [];
+
+    for (let x = 0; x < 9; x++) {
+        for (let y = 0; y < 9 - (shipSize - 2); y++) {
+            const [spotRange] = aiBoard.getCellRange(
+                [x, y],
+                [x, y + (shipSize - 1)],
+            );
+
+            const isFree = !spotRange.some((cell) => {
+                return cell.ship !== null;
+            });
+
+            if (isFree) {
+                freeSpots.push([
+                    spotRange[0].position,
+                    spotRange[shipSize - 1].position,
+                ]);
+            }
+        }
+    }
+
+    for (let y = 0; y < 9; y++) {
+        for (let x = 0; x < 9 - (shipSize - 2); x++) {
+            const [spotRange] = aiBoard.getCellRange(
+                [x, y],
+                [x + (shipSize - 1), y],
+            );
+
+            const isFree = !spotRange.some((cell) => {
+                return cell.ship !== null;
+            });
+
+            if (isFree) {
+                freeSpots.push([
+                    spotRange[0].position,
+                    spotRange[shipSize - 1].position,
+                ]);
+            }
+        }
+    }
+
+    const randomIndex = Math.floor(freeSpots.length * Math.random());
+
+    return freeSpots[randomIndex];
+}
 
 function Game() {
     const players = [Player("Player 1"), Player("Player 2")];
@@ -228,7 +274,9 @@ function Game() {
             const aiBoard = getPlayerBoard(1);
 
             settings.startingShips.forEach((length) => {
-                aiBoard.placeShip(getAiPlacement(aiBoard, length));
+                const randomPlacement = getAiPlacement(aiBoard, length);
+
+                aiBoard.placeShip(randomPlacement[0], randomPlacement[1]);
             });
 
             whosPlacing += 1;
