@@ -76,7 +76,7 @@ function getAiMove(boards) {
                     }
                 }
 
-                if (x - 1 <= 9) {
+                if (x - 1 >= 0) {
                     const leftCell = playerBoard.getCell([x - 1, y]);
 
                     if (!attackHistory.has(leftCell)) {
